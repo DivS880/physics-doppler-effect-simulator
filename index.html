@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doppler Effect Interactive Simulator</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-title-group">
+        <div class="header-badge">Year 11 Physics</div>
+        <h1 class="site-title">Doppler Effect<br /><span class="title-accent">Interactive Simulator</span></h1>
+        <p class="site-subtitle">Investigating how source velocity affects observed frequency and wavelength</p>
+      </div>
+      <div class="header-meta">
+        <div class="meta-chip" id="fps-display">-- FPS</div>
+        <div class="meta-chip" id="status-display">RUNNING</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN LAYOUT -->
+  <main class="main-layout">
+
+    <!-- LEFT: Simulation Canvas -->
+    <section class="canvas-section" aria-label="Simulation canvas">
+      <div class="canvas-header">
+        <span class="section-label">SIMULATION</span>
+        <div class="canvas-controls-inline">
+          <button class="btn btn-primary" id="btn-playpause" aria-label="Play or pause simulation">⏸ Pause</button>
+          <button class="btn btn-ghost" id="btn-reset" aria-label="Reset simulation">↺ Reset</button>
+          <button class="btn btn-ghost" id="btn-fullscreen" aria-label="Toggle fullscreen">⛶ Fullscreen</button>
+          <button class="btn btn-ghost" id="btn-screenshot" aria-label="Capture screenshot">📷 Capture</button>
+          <button class="btn btn-ghost" id="btn-compare" aria-label="Compare speeds">⊞ Compare</button>
+          <button class="btn btn-learn" id="btn-learn" aria-label="Learning mode">🎓 Learn</button>
+        </div>
+      </div>
+      <div class="canvas-wrapper" id="canvas-wrapper">
+        <canvas id="sim-canvas" aria-label="Doppler effect simulation showing ambulance and wavefronts"></canvas>
+
+        <!-- Fullscreen floating controls (shown only in fullscreen) -->
+        <div class="fs-controls" id="fs-controls">
+          <button class="btn btn-primary fs-btn" id="fs-btn-playpause">⏸ Pause</button>
+          <button class="btn btn-ghost fs-btn" id="fs-btn-reset">↺ Reset</button>
+          <button class="btn btn-ghost fs-btn" id="fs-btn-screenshot">📷 Capture</button>
+          <button class="btn btn-ghost fs-btn" id="fs-btn-exit">⛶ Exit Fullscreen</button>
+        </div>
+      </div>
+      <!-- Display Options -->
+      <div class="display-options">
+        <span class="section-label" style="margin-bottom:0">DISPLAY</span>
+        <label class="toggle-label">
+          <input type="checkbox" id="chk-labels" checked />
+          <span class="toggle-box"></span>
+          Wavefront Labels
+        </label>
+        <label class="toggle-label">
+          <input type="checkbox" id="chk-wavelength" />
+          <span class="toggle-box"></span>
+          Wavelength Measurements
+        </label>
+        <label class="toggle-label">
+          <input type="checkbox" id="chk-observers" checked />
+          <span class="toggle-box"></span>
+          Observer Readings
+        </label>
+        <label class="toggle-label">
+          <input type="checkbox" id="chk-equations" checked />
+          <span class="toggle-box"></span>
+          Physics Equations
+        </label>
+        <label class="toggle-label">
+          <input type="checkbox" id="chk-graph" checked />
+          <span class="toggle-box"></span>
+          Show Graph
+        </label>
+        <label class="toggle-label">
+          <input type="checkbox" id="chk-audio" />
+          <span class="toggle-box"></span>
+          🔊 Audio Doppler Demo
+        </label>
+        <select id="sel-audio-observer" class="audio-observer-select" aria-label="Select observer for audio demonstration" style="display:none;">
+          <option value="A">Observer A</option>
+          <option value="B">Observer B</option>
+        </select>
+      </div>
+
+      <!-- BELOW-CANVAS ROW (spans canvas width only) -->
+      <div class="below-canvas-row">
+
+        <!-- Panel 1: Observer Data -->
+        <div class="panel below-panel" id="bottom-observer-panel">
+          <h2 class="panel-title">
+            <span class="panel-icon">👁</span> Observer Data
+          </h2>
+          <div class="observer-readings" id="observer-readings-container">
+            <div class="observer-card observer-a" id="obs-card-a">
+              <div class="observer-card-header">
+                <span class="obs-dot obs-a"></span>
+                Observer A <span class="obs-tag" id="obs-tag-a">AHEAD</span>
+              </div>
+              <div class="obs-stat">
+                <span class="obs-stat-label">f observed</span>
+                <span class="obs-stat-value" id="d-freq-a">- Hz</span>
+              </div>
+              <div class="obs-stat">
+                <span class="obs-stat-label">λ observed</span>
+                <span class="obs-stat-value" id="d-wave-a">- m</span>
+              </div>
+              <div class="obs-stat">
+                <span class="obs-stat-label">Δf shift</span>
+                <span class="obs-stat-value shift-up" id="d-shift-a">+0 Hz</span>
+              </div>
+            </div>
+            <div class="observer-card observer-b" id="obs-card-b">
+              <div class="observer-card-header">
+                <span class="obs-dot obs-b"></span>
+                Observer B <span class="obs-tag" id="obs-tag-b">BEHIND</span>
+              </div>
+              <div class="obs-stat">
+                <span class="obs-stat-label">f observed</span>
+                <span class="obs-stat-value" id="d-freq-b">- Hz</span>
+              </div>
+              <div class="obs-stat">
+                <span class="obs-stat-label">λ observed</span>
+                <span class="obs-stat-value" id="d-wave-b">- m</span>
+              </div>
+              <div class="obs-stat">
+                <span class="obs-stat-label">Δf shift</span>
+                <span class="obs-stat-value shift-down" id="d-shift-b">−0 Hz</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 2: Wavelength Analysis -->
+        <div class="panel below-panel" id="bottom-wavelength-panel">
+          <h2 class="panel-title">
+            <span class="panel-icon">λ</span> Wavelength Analysis
+          </h2>
+          <div class="wavelength-grid">
+            <div class="wl-item wl-source">
+              <span class="wl-symbol">λ₀</span>
+              <span class="wl-label">Source</span>
+              <span class="wl-value" id="wl-source">0.780 m</span>
+            </div>
+            <div class="wl-item wl-front">
+              <span class="wl-symbol">λ<sub>front</sub></span>
+              <span class="wl-label">Ahead (compressed)</span>
+              <span class="wl-value" id="wl-front">0.746 m</span>
+            </div>
+            <div class="wl-item wl-rear">
+              <span class="wl-symbol">λ<sub>rear</sub></span>
+              <span class="wl-label">Behind (expanded)</span>
+              <span class="wl-value" id="wl-rear">0.814 m</span>
+            </div>
+          </div>
+
+          <!-- Visual wavelength comparison bar -->
+          <div class="wl-visual" aria-label="Visual wavelength comparison">
+            <div class="wl-visual-label">Compression / Expansion Visualisation</div>
+            <div class="wl-bars">
+              <div class="wl-bar-row">
+                <span class="wl-bar-tag wl-bar-tag-a">AHEAD</span>
+                <div class="wl-bar-track">
+                  <div class="wl-bar wl-bar-front" id="wl-bar-front"></div>
+                </div>
+                <span class="wl-bar-val" id="wl-bar-front-val">-</span>
+              </div>
+              <div class="wl-bar-row">
+                <span class="wl-bar-tag wl-bar-tag-src">SOURCE</span>
+                <div class="wl-bar-track">
+                  <div class="wl-bar wl-bar-source" id="wl-bar-source"></div>
+                </div>
+                <span class="wl-bar-val" id="wl-bar-source-val">-</span>
+              </div>
+              <div class="wl-bar-row">
+                <span class="wl-bar-tag wl-bar-tag-b">BEHIND</span>
+                <div class="wl-bar-track">
+                  <div class="wl-bar wl-bar-rear" id="wl-bar-rear"></div>
+                </div>
+                <span class="wl-bar-val" id="wl-bar-rear-val">-</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 3: Graph -->
+        <div class="panel below-panel" id="graph-panel">
+          <h2 class="panel-title">
+            <span class="panel-icon">∿</span> Frequency vs Speed
+          </h2>
+
+          <div class="graph-mode-bar" id="graph-mode-bar">
+            <span class="graph-mode-label">MODE:</span>
+            <button class="graph-mode-btn active" id="gmode-default" data-mode="default">Standard</button>
+            <button class="graph-mode-btn" id="gmode-theory" data-mode="theory">Theory vs Sim</button>
+            <button class="graph-mode-btn" id="gmode-focus" data-mode="focus">Observer Focus</button>
+            <button class="graph-mode-btn" id="gmode-velocity" data-mode="velocity">Velocity Impact</button>
+          </div>
+
+          <div class="observer-focus-bar" id="observer-focus-bar" style="display:none;">
+            <span class="graph-mode-label">OBSERVER:</span>
+            <button class="obs-focus-btn active" id="ofocus-ahead" data-obs="ahead">▸ Ahead (A)</button>
+            <button class="obs-focus-btn" id="ofocus-behind" data-obs="behind">▸ Behind (B)</button>
+          </div>
+
+          <div class="graph-container" style="position:relative;">
+            <canvas id="graph-canvas" aria-label="Graph of observed frequency versus source speed"></canvas>
+            <div id="graph-tooltip" class="graph-tooltip" style="display:none;"></div>
+          </div>
+          <div class="graph-legend" id="graph-legend">
+            <span class="legend-dot legend-a"></span><span>Observer A (ahead)</span>
+            <span class="legend-dot legend-b"></span><span>Observer B (behind)</span>
+            <span class="legend-dot legend-src"></span><span>Source frequency</span>
+          </div>
+        </div>
+
+      </div><!-- /.below-canvas-row -->
+    </section>
+
+    <!-- RIGHT: Control + Data + Equations Panels -->
+    <aside class="right-panel" aria-label="Controls and data">
+
+      <!-- Control Panel -->
+      <div class="panel" id="control-panel">
+        <h2 class="panel-title">
+          <span class="panel-icon">⚙</span> Controls
+        </h2>
+
+        <div class="slider-group">
+          <div class="slider-header">
+            <label for="sl-frequency" class="slider-label">Source Frequency</label>
+            <span class="slider-value" id="val-frequency">440 Hz</span>
+          </div>
+          <input type="range" id="sl-frequency" class="slider" min="100" max="1000" step="1" value="440" aria-label="Source frequency" />
+          <div class="slider-range-labels"><span>100 Hz</span><span>1000 Hz</span></div>
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-header">
+            <label for="sl-speed" class="slider-label">Source Speed</label>
+            <span class="slider-value" id="val-speed">15 m/s</span>
+          </div>
+          <input type="range" id="sl-speed" class="slider" min="0" max="100" step="1" value="15" aria-label="Source speed" />
+          <div class="slider-range-labels"><span>0 m/s</span><span>100 m/s</span></div>
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-header">
+            <label for="sl-animspeed" class="slider-label">Animation Speed</label>
+            <span class="slider-value" id="val-animspeed">1.0×</span>
+          </div>
+          <input type="range" id="sl-animspeed" class="slider" min="0.25" max="5" step="0.25" value="1" aria-label="Animation speed multiplier" />
+          <div class="slider-range-labels"><span>0.25×</span><span>5×</span></div>
+        </div>
+      </div>
+
+      <!-- Data Panel -->
+      <div class="panel" id="data-panel">
+        <h2 class="panel-title">
+          <span class="panel-icon">📊</span> Live Data
+        </h2>
+        <div class="data-grid">
+          <div class="data-item">
+            <span class="data-label">Source Frequency</span>
+            <span class="data-value" id="d-src-freq">440 Hz</span>
+          </div>
+          <div class="data-item">
+            <span class="data-label">Source Speed</span>
+            <span class="data-value" id="d-src-speed">15 m/s</span>
+          </div>
+          <div class="data-item">
+            <span class="data-label">Speed of Sound</span>
+            <span class="data-value" id="d-sound-speed">343 m/s</span>
+          </div>
+          <div class="data-item">
+            <span class="data-label">Mach Number</span>
+            <span class="data-value" id="d-mach">0.044</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Equations Panel -->
+      <div class="panel" id="bottom-equation-panel">
+        <h2 class="panel-title">
+          <span class="panel-icon">∫</span> Equations &amp; Definitions
+        </h2>
+        <div class="equations-box" id="equations-box">
+          <div class="eq-title">Doppler Equations</div>
+
+          <div class="equation">
+            <span class="eq-label">Wave:</span>
+            <span class="eq-formula">v = f · λ</span>
+          </div>
+          <div class="equation">
+            <span class="eq-label">Ahead:</span>
+            <span class="eq-formula">f<sub>o</sub> = f<sub>s</sub> · (v + v<sub>o</sub>) ÷ (v − v<sub>s</sub>)</span>
+          </div>
+          <div class="equation">
+            <span class="eq-label">Behind:</span>
+            <span class="eq-formula">f<sub>o</sub> = f<sub>s</sub> · (v − v<sub>o</sub>) ÷ (v + v<sub>s</sub>)</span>
+          </div>
+          <div class="equation">
+            <span class="eq-label">λ:</span>
+            <span class="eq-formula">λ = v ÷ f</span>
+          </div>
+
+          <div class="eq-divider"></div>
+
+          <div class="eq-title" style="margin-top:6px;">Variable Definitions</div>
+          <div class="eq-defs">
+            <div class="eq-def-row"><span class="eq-def-sym">f<sub>s</sub></span><span class="eq-def-desc">source frequency (Hz)</span></div>
+            <div class="eq-def-row"><span class="eq-def-sym">f<sub>o</sub></span><span class="eq-def-desc">observed frequency (Hz)</span></div>
+            <div class="eq-def-row"><span class="eq-def-sym">v</span><span class="eq-def-desc">velocity of sound waves = 343 m/s</span></div>
+            <div class="eq-def-row"><span class="eq-def-sym">v<sub>o</sub></span><span class="eq-def-desc">velocity of observer (m/s) — 0, observers are stationary</span></div>
+            <div class="eq-def-row"><span class="eq-def-sym">v<sub>s</sub></span><span class="eq-def-desc">velocity of source (m/s)</span></div>
+            <div class="eq-def-row"><span class="eq-def-sym">λ</span><span class="eq-def-desc">wavelength (m)</span></div>
+          </div>
+
+          <div class="eq-divider"></div>
+
+          <div class="eq-title" style="margin-top:6px;">Live Calculations</div>
+          <div class="eq-live" id="eq-live-a">f<sub>A</sub> = 440 × (343 + 0) ÷ (343 − 15) = <strong>458.2 Hz</strong></div>
+          <div class="eq-live" id="eq-live-b">f<sub>B</sub> = 440 × (343 − 0) ÷ (343 + 15) = <strong>423.0 Hz</strong></div>
+        </div>
+      </div>
+
+    </aside>
+  </main>
+
+  <!-- Help / Footer -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="help-block">
+        <button class="btn btn-ghost help-btn" id="help-btn" aria-describedby="help-tooltip">? Help</button>
+        <div class="help-tooltip" id="help-tooltip" role="tooltip">
+          <ol class="help-list">
+            <li>Move the <strong>Source Frequency</strong> slider to change pitch.</li>
+            <li>Move the <strong>Source Speed</strong> slider to change velocity.</li>
+            <li>Observe <strong>wavefront compression</strong> ahead of the source.</li>
+            <li>Observe <strong>wavefront expansion</strong> behind the source.</li>
+            <li>Compare <strong>Observer A vs B</strong> frequencies in the data panel.</li>
+            <li>Use <strong>Graph Modes</strong> to explore Theory vs Sim, Observer Focus, and Velocity Impact views.</li>
+            <li>Click <strong>📷 Capture</strong> to export a PNG screenshot.</li>
+            <li>Click <strong>⛶ Fullscreen</strong> to expand the canvas.</li>
+            <li>Click <strong>⊞ Compare</strong> to snapshot and compare up to 4 speeds.</li>
+            <li>Click <strong>🎓 Learn</strong> for a guided step-by-step tour.</li>
+          </ol>
+        </div>
+      </div>
+      <p class="footer-credit">Year 11 Physics · Doppler Effect Simulator</p>
+    </div>
+  </footer>
+
+  <!-- COMPARE Modal - mounted at body root for correct stacking -->
+  <div id="compare-modal" class="modal-overlay" style="display:none;" role="dialog" aria-label="Compare speeds">
+    <div class="modal-box compare-modal-box">
+      <div class="modal-header">
+        <span class="modal-title">⊞ Compare Panel</span>
+        <button class="modal-close" id="compare-close" aria-label="Close compare modal">✕</button>
+      </div>
+      <p class="modal-hint">Save up to 4 simulation states to compare wavefront patterns and observer frequencies side-by-side.</p>
+      <div class="compare-actions">
+        <button class="btn btn-primary" id="btn-save-snapshot" aria-label="Save current state as snapshot">+ Save Current State</button>
+        <button class="btn btn-ghost" id="btn-clear-snapshots" aria-label="Clear all snapshots">↺ Clear All</button>
+      </div>
+      <div class="compare-grid" id="compare-grid">
+        <div class="compare-empty" id="compare-empty">No snapshots saved yet. Run the simulation at different speeds and click "Save Current State".</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEARN MODE OVERLAY -->
+  <div id="learn-overlay" class="learn-overlay" style="display:none;" role="dialog" aria-label="Learning mode">
+    <div class="learn-panel">
+      <div class="learn-header">
+        <span class="learn-badge">🎓 LEARNING MODE</span>
+        <button class="modal-close" id="learn-close" aria-label="Exit learning mode">✕ Exit</button>
+      </div>
+      <div class="learn-progress-bar">
+        <div class="learn-progress-fill" id="learn-progress-fill"></div>
+      </div>
+      <div class="learn-step-counter" id="learn-step-counter">Step 1 of 5</div>
+      <div class="learn-content" id="learn-content">
+        <!-- filled dynamically -->
+      </div>
+      <div class="learn-nav">
+        <button class="btn btn-ghost" id="learn-prev" aria-label="Previous step">← Prev</button>
+        <div class="learn-dots" id="learn-dots"></div>
+        <button class="btn btn-primary" id="learn-next" aria-label="Next step">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
