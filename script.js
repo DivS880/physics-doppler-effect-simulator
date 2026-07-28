@@ -1081,6 +1081,25 @@ const UIController = {
       eqLiveA:      id('eq-live-a'),
       eqLiveB:      id('eq-live-b'),
 
+      eqObsTagA:    id('eq-obs-tag-a'),
+      eqObsTagB:    id('eq-obs-tag-b'),
+      eqAWaveEq:    id('eq-a-wave-eq'),
+      eqAWaveSub:   id('eq-a-wave-sub'),
+      eqAWaveAns:   id('eq-a-wave-ans'),
+      eqAFreqEq:    id('eq-a-freq-eq'),
+      eqAFreqSub:   id('eq-a-freq-sub'),
+      eqAFreqAns:   id('eq-a-freq-ans'),
+      eqAShiftSub:  id('eq-a-shift-sub'),
+      eqAShiftAns:  id('eq-a-shift-ans'),
+      eqBWaveEq:    id('eq-b-wave-eq'),
+      eqBWaveSub:   id('eq-b-wave-sub'),
+      eqBWaveAns:   id('eq-b-wave-ans'),
+      eqBFreqEq:    id('eq-b-freq-eq'),
+      eqBFreqSub:   id('eq-b-freq-sub'),
+      eqBFreqAns:   id('eq-b-freq-ans'),
+      eqBShiftSub:  id('eq-b-shift-sub'),
+      eqBShiftAns:  id('eq-b-shift-ans'),
+
       graphPanel:   id('graph-panel'),
 
       chkLabels:    id('chk-labels'),
@@ -1428,6 +1447,55 @@ const UIController = {
     e.eqLiveB.innerHTML = isFinite(fB)
       ? `${eqBStr} = <strong>${fBstr} Hz</strong>`
       : `${eqBStr} = <strong>∞ (sonic)</strong>`;
+
+    // Full worked solution (wavelength, observed frequency, frequency shift)
+    // per observer — reuses fA/fB, wA/wB, shiftA/shiftB already computed
+    // above; no physics is recalculated here.
+    const buildWorked = (approaching, freqStr, waveStr, shiftVal) => {
+      const waveSym = approaching ? 'λ<sub>front</sub>' : 'λ<sub>rear</sub>';
+      const waveOp  = approaching ? '−' : '+';
+      const freqSym = approaching ? 'f<sub>ahead</sub>' : 'f<sub>behind</sub>';
+      const freqOp  = approaching ? '−' : '+';
+
+      const waveEq  = `${waveSym} = (v ${waveOp} v<sub>s</sub>) ÷ f`;
+      const waveSub = `${waveSym} = (${V} ${waveOp} ${vs}) ÷ ${f}`;
+      const waveAns = waveStr === '—' ? `${waveSym} = —` : `${waveSym} = ${waveStr} m`;
+
+      const freqEq  = `${freqSym} = f(v ÷ (v ${freqOp} v<sub>s</sub>))`;
+      const freqSub = `${freqSym} = ${f} × (${V} ÷ (${V} ${freqOp} ${vs}))`;
+      const freqAns = freqStr === '∞' ? `${freqSym} = ∞ (sonic)` : `${freqSym} = ${freqStr} Hz`;
+
+      const shiftSub = isFinite(shiftVal) ? `Δf = ${freqStr} − ${f}` : `Δf = ∞ − ${f}`;
+      const shiftAns = isFinite(shiftVal)
+        ? `Δf = ${shiftVal >= 0 ? '+' : '−'}${Math.abs(shiftVal).toFixed(1)} Hz`
+        : `Δf = +∞ Hz`;
+
+      return { waveEq, waveSub, waveAns, freqEq, freqSub, freqAns, shiftSub, shiftAns };
+    };
+
+    const workedA = buildWorked(resA.approaching, fAstr, wA, shiftA);
+    const workedB = buildWorked(resB.approaching, fBstr, wB, shiftB);
+
+    if (e.eqObsTagA) e.eqObsTagA.textContent = resA.approaching ? 'APPROACHING' : 'RECEDING';
+    if (e.eqObsTagB) e.eqObsTagB.textContent = resB.approaching ? 'APPROACHING' : 'RECEDING';
+
+    if (e.eqAWaveEq)   e.eqAWaveEq.innerHTML   = workedA.waveEq;
+    if (e.eqAWaveSub)  e.eqAWaveSub.innerHTML  = workedA.waveSub;
+    if (e.eqAWaveAns)  e.eqAWaveAns.innerHTML  = workedA.waveAns;
+    if (e.eqAFreqEq)   e.eqAFreqEq.innerHTML   = workedA.freqEq;
+    if (e.eqAFreqSub)  e.eqAFreqSub.innerHTML  = workedA.freqSub;
+    if (e.eqAFreqAns)  e.eqAFreqAns.innerHTML  = workedA.freqAns;
+    if (e.eqAShiftSub) e.eqAShiftSub.innerHTML = workedA.shiftSub;
+    if (e.eqAShiftAns) e.eqAShiftAns.innerHTML = workedA.shiftAns;
+
+    if (e.eqBWaveEq)   e.eqBWaveEq.innerHTML   = workedB.waveEq;
+    if (e.eqBWaveSub)  e.eqBWaveSub.innerHTML  = workedB.waveSub;
+    if (e.eqBWaveAns)  e.eqBWaveAns.innerHTML  = workedB.waveAns;
+    if (e.eqBFreqEq)   e.eqBFreqEq.innerHTML   = workedB.freqEq;
+    if (e.eqBFreqSub)  e.eqBFreqSub.innerHTML  = workedB.freqSub;
+    if (e.eqBFreqAns)  e.eqBFreqAns.innerHTML  = workedB.freqAns;
+    if (e.eqBShiftSub) e.eqBShiftSub.innerHTML = workedB.shiftSub;
+    if (e.eqBShiftAns) e.eqBShiftAns.innerHTML = workedB.shiftAns;
 
     e.fpsDisplay.textContent = state.fps + ' FPS';
 
