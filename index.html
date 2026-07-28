@@ -291,97 +291,148 @@
       <!-- Equations Panel -->
       <div class="panel" id="bottom-equation-panel">
         <h2 class="panel-title">
-          <span class="panel-icon">∫</span> Equations &amp; Definitions
+          <span class="panel-icon">∫</span> Equations &amp; Calculations
         </h2>
         <div class="equations-box" id="equations-box">
-          <div class="eq-title">Doppler Equations</div>
 
-          <div class="equation">
-            <span class="eq-label">Wave:</span>
-            <span class="eq-formula">v = f · λ</span>
+          <div class="eq-live-header">
+            <span class="eq-title" style="margin-bottom:0;">Doppler Equations</span>
+            <button class="btn btn-ghost eq-toggle-btn" id="btn-toggle-equations" aria-expanded="false" aria-controls="equations-content">Show Equations</button>
           </div>
-          <div class="equation">
-            <span class="eq-label">Ahead:</span>
-            <span class="eq-formula">f<sub>o</sub> = f<sub>s</sub> · (v + v<sub>o</sub>) ÷ (v − v<sub>s</sub>)</span>
-          </div>
-          <div class="equation">
-            <span class="eq-label">Behind:</span>
-            <span class="eq-formula">f<sub>o</sub> = f<sub>s</sub> · (v − v<sub>o</sub>) ÷ (v + v<sub>s</sub>)</span>
-          </div>
-          <div class="equation">
-            <span class="eq-label">λ:</span>
-            <span class="eq-formula">λ = v ÷ f</span>
+
+          <div class="equations-content" id="equations-content" style="display:none;">
+
+            <div class="eq-title">Doppler Frequency Equations</div>
+
+            <div class="equation">
+              <span class="eq-label">Approaching:</span>
+              <span class="eq-formula">f<sub>o</sub> = f<sub>s</sub> · (v + v<sub>o</sub>) ÷ (v − v<sub>s</sub>)</span>
+            </div>
+            <div class="equation">
+              <span class="eq-label">Receding:</span>
+              <span class="eq-formula">f<sub>o</sub> = f<sub>s</sub> · (v − v<sub>o</sub>) ÷ (v + v<sub>s</sub>)</span>
+            </div>
+
+            <div class="eq-divider"></div>
+
+            <div class="eq-title" style="margin-top:6px;">Wavelength Equations</div>
+            <div class="equation">
+              <span class="eq-label">λ<sub>front</sub>:</span>
+              <span class="eq-formula">λ<sub>front</sub> = (v − v<sub>s</sub>) ÷ f</span>
+            </div>
+            <div class="equation">
+              <span class="eq-label">λ<sub>rear</sub>:</span>
+              <span class="eq-formula">λ<sub>rear</sub> = (v + v<sub>s</sub>) ÷ f</span>
+            </div>
+            <div class="equation">
+              <span class="eq-label">λ<sub>source</sub>:</span>
+              <span class="eq-formula">λ<sub>source</sub> = v ÷ f</span>
+            </div>
+
+            <div class="eq-divider"></div>
+
+            <div class="eq-title" style="margin-top:6px;">Frequency Shift Equation</div>
+            <div class="equation">
+              <span class="eq-label">Δf:</span>
+              <span class="eq-formula">Δf = f<sub>observed</sub> − f<sub>source</sub></span>
+            </div>
+
+            <div class="eq-divider"></div>
+
+            <div class="eq-title" style="margin-top:6px;">Wave Relationship</div>
+            <div class="equation">
+              <span class="eq-label">Wave:</span>
+              <span class="eq-formula">v = f · λ</span>
+            </div>
+            <div class="equation">
+              <span class="eq-label">λ:</span>
+              <span class="eq-formula">λ = v ÷ f</span>
+            </div>
+
+            <div class="eq-divider"></div>
+
+            <div class="eq-title" style="margin-top:6px;">Other Relationships</div>
+            <div class="equation">
+              <span class="eq-label">Mach:</span>
+              <span class="eq-formula">M = v<sub>s</sub> ÷ v</span>
+            </div>
+
+            <div class="eq-divider"></div>
+
+            <div class="eq-title" style="margin-top:6px;">Variable Definitions</div>
+            <div class="eq-defs">
+              <div class="eq-def-row"><span class="eq-def-sym">f<sub>s</sub></span><span class="eq-def-desc">source frequency (Hz)</span></div>
+              <div class="eq-def-row"><span class="eq-def-sym">f<sub>o</sub></span><span class="eq-def-desc">observed frequency (Hz)</span></div>
+              <div class="eq-def-row"><span class="eq-def-sym">v</span><span class="eq-def-desc">velocity of sound waves = 343 m/s</span></div>
+              <div class="eq-def-row"><span class="eq-def-sym">v<sub>o</sub></span><span class="eq-def-desc">velocity of observer (m/s) — 0, observers are stationary</span></div>
+              <div class="eq-def-row"><span class="eq-def-sym">v<sub>s</sub></span><span class="eq-def-desc">velocity of source (m/s)</span></div>
+              <div class="eq-def-row"><span class="eq-def-sym">λ</span><span class="eq-def-desc">wavelength (m)</span></div>
+              <div class="eq-def-row"><span class="eq-def-sym">M</span><span class="eq-def-desc">Mach number (source speed ÷ speed of sound)</span></div>
+            </div>
+
           </div>
 
           <div class="eq-divider"></div>
 
-          <div class="eq-title" style="margin-top:6px;">Variable Definitions</div>
-          <div class="eq-defs">
-            <div class="eq-def-row"><span class="eq-def-sym">f<sub>s</sub></span><span class="eq-def-desc">source frequency (Hz)</span></div>
-            <div class="eq-def-row"><span class="eq-def-sym">f<sub>o</sub></span><span class="eq-def-desc">observed frequency (Hz)</span></div>
-            <div class="eq-def-row"><span class="eq-def-sym">v</span><span class="eq-def-desc">velocity of sound waves = 343 m/s</span></div>
-            <div class="eq-def-row"><span class="eq-def-sym">v<sub>o</sub></span><span class="eq-def-desc">velocity of observer (m/s) — 0, observers are stationary</span></div>
-            <div class="eq-def-row"><span class="eq-def-sym">v<sub>s</sub></span><span class="eq-def-desc">velocity of source (m/s)</span></div>
-            <div class="eq-def-row"><span class="eq-def-sym">λ</span><span class="eq-def-desc">wavelength (m)</span></div>
+          <div class="eq-live-header">
+            <span class="eq-title" style="margin-bottom:0;">Live Calculations</span>
+            <button class="btn btn-ghost eq-toggle-btn" id="btn-toggle-live-calc" aria-expanded="false" aria-controls="live-calc-content">Show Live Calculations</button>
           </div>
 
-          <div class="eq-divider"></div>
+          <div class="live-calc-content" id="live-calc-content" style="display:none;">
 
-          <div class="eq-title" style="margin-top:6px;">Live Calculations</div>
-          <div class="eq-live" id="eq-live-a">f<sub>A</sub> = 440 × (343 + 0) ÷ (343 − 15) = <strong>458.2 Hz</strong></div>
-          <div class="eq-live" id="eq-live-b">f<sub>B</sub> = 440 × (343 − 0) ÷ (343 + 15) = <strong>423.0 Hz</strong></div>
+            <div class="eq-worked-block" id="eq-worked-ahead">
+              <div class="eq-worked-heading">Observer Ahead (Approaching)</div>
 
-          <div class="eq-divider"></div>
-          <div class="eq-title" style="margin-top:6px;">Full Worked Solution</div>
+              <div class="eq-worked-sub">
+                <div class="eq-worked-sub-title">Frequency</div>
+                <div class="eq-worked-line" id="live-ahead-freq-eq"></div>
+                <div class="eq-worked-line" id="live-ahead-freq-sub"></div>
+                <div class="eq-worked-line eq-worked-answer" id="live-ahead-freq-ans"></div>
+              </div>
 
-          <div class="eq-worked-block" id="eq-worked-a">
-            <div class="eq-worked-heading">Observer A — <span id="eq-obs-tag-a">APPROACHING</span></div>
+              <div class="eq-worked-sub">
+                <div class="eq-worked-sub-title">Wavelength</div>
+                <div class="eq-worked-line" id="live-ahead-wave-eq"></div>
+                <div class="eq-worked-line" id="live-ahead-wave-sub"></div>
+                <div class="eq-worked-line eq-worked-answer" id="live-ahead-wave-ans"></div>
+              </div>
 
-            <div class="eq-worked-sub">
-              <div class="eq-worked-sub-title">Wavelength</div>
-              <div class="eq-worked-line" id="eq-a-wave-eq"></div>
-              <div class="eq-worked-line" id="eq-a-wave-sub"></div>
-              <div class="eq-worked-line eq-worked-answer" id="eq-a-wave-ans"></div>
+              <div class="eq-worked-sub">
+                <div class="eq-worked-sub-title">Frequency Shift</div>
+                <div class="eq-worked-line">Δf<sub>ahead</sub> = f<sub>observed</sub> − f<sub>source</sub></div>
+                <div class="eq-worked-line" id="live-ahead-shift-sub"></div>
+                <div class="eq-worked-line eq-worked-answer" id="live-ahead-shift-ans"></div>
+              </div>
             </div>
 
-            <div class="eq-worked-sub">
-              <div class="eq-worked-sub-title">Observed Frequency</div>
-              <div class="eq-worked-line" id="eq-a-freq-eq"></div>
-              <div class="eq-worked-line" id="eq-a-freq-sub"></div>
-              <div class="eq-worked-line eq-worked-answer" id="eq-a-freq-ans"></div>
+            <div class="eq-divider"></div>
+
+            <div class="eq-worked-block" id="eq-worked-behind">
+              <div class="eq-worked-heading">Observer Behind (Receding)</div>
+
+              <div class="eq-worked-sub">
+                <div class="eq-worked-sub-title">Frequency</div>
+                <div class="eq-worked-line" id="live-behind-freq-eq"></div>
+                <div class="eq-worked-line" id="live-behind-freq-sub"></div>
+                <div class="eq-worked-line eq-worked-answer" id="live-behind-freq-ans"></div>
+              </div>
+
+              <div class="eq-worked-sub">
+                <div class="eq-worked-sub-title">Wavelength</div>
+                <div class="eq-worked-line" id="live-behind-wave-eq"></div>
+                <div class="eq-worked-line" id="live-behind-wave-sub"></div>
+                <div class="eq-worked-line eq-worked-answer" id="live-behind-wave-ans"></div>
+              </div>
+
+              <div class="eq-worked-sub">
+                <div class="eq-worked-sub-title">Frequency Shift</div>
+                <div class="eq-worked-line">Δf<sub>behind</sub> = f<sub>observed</sub> − f<sub>source</sub></div>
+                <div class="eq-worked-line" id="live-behind-shift-sub"></div>
+                <div class="eq-worked-line eq-worked-answer" id="live-behind-shift-ans"></div>
+              </div>
             </div>
 
-            <div class="eq-worked-sub">
-              <div class="eq-worked-sub-title">Frequency Shift</div>
-              <div class="eq-worked-line">Δf = f<sub>observed</sub> − f<sub>source</sub></div>
-              <div class="eq-worked-line" id="eq-a-shift-sub"></div>
-              <div class="eq-worked-line eq-worked-answer" id="eq-a-shift-ans"></div>
-            </div>
-          </div>
-
-          <div class="eq-worked-block" id="eq-worked-b">
-            <div class="eq-worked-heading">Observer B — <span id="eq-obs-tag-b">RECEDING</span></div>
-
-            <div class="eq-worked-sub">
-              <div class="eq-worked-sub-title">Wavelength</div>
-              <div class="eq-worked-line" id="eq-b-wave-eq"></div>
-              <div class="eq-worked-line" id="eq-b-wave-sub"></div>
-              <div class="eq-worked-line eq-worked-answer" id="eq-b-wave-ans"></div>
-            </div>
-
-            <div class="eq-worked-sub">
-              <div class="eq-worked-sub-title">Observed Frequency</div>
-              <div class="eq-worked-line" id="eq-b-freq-eq"></div>
-              <div class="eq-worked-line" id="eq-b-freq-sub"></div>
-              <div class="eq-worked-line eq-worked-answer" id="eq-b-freq-ans"></div>
-            </div>
-
-            <div class="eq-worked-sub">
-              <div class="eq-worked-sub-title">Frequency Shift</div>
-              <div class="eq-worked-line">Δf = f<sub>observed</sub> − f<sub>source</sub></div>
-              <div class="eq-worked-line" id="eq-b-shift-sub"></div>
-              <div class="eq-worked-line eq-worked-answer" id="eq-b-shift-ans"></div>
-            </div>
           </div>
         </div>
       </div>

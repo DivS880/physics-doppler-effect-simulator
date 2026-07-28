@@ -1078,27 +1078,28 @@ const UIController = {
       wlBarRearVal:    id('wl-bar-rear-val'),
 
       equationsBox: id('equations-box'),
-      eqLiveA:      id('eq-live-a'),
-      eqLiveB:      id('eq-live-b'),
+      btnToggleEquations: id('btn-toggle-equations'),
+      equationsContent:   id('equations-content'),
+      btnToggleLiveCalc: id('btn-toggle-live-calc'),
+      liveCalcContent:   id('live-calc-content'),
 
-      eqObsTagA:    id('eq-obs-tag-a'),
-      eqObsTagB:    id('eq-obs-tag-b'),
-      eqAWaveEq:    id('eq-a-wave-eq'),
-      eqAWaveSub:   id('eq-a-wave-sub'),
-      eqAWaveAns:   id('eq-a-wave-ans'),
-      eqAFreqEq:    id('eq-a-freq-eq'),
-      eqAFreqSub:   id('eq-a-freq-sub'),
-      eqAFreqAns:   id('eq-a-freq-ans'),
-      eqAShiftSub:  id('eq-a-shift-sub'),
-      eqAShiftAns:  id('eq-a-shift-ans'),
-      eqBWaveEq:    id('eq-b-wave-eq'),
-      eqBWaveSub:   id('eq-b-wave-sub'),
-      eqBWaveAns:   id('eq-b-wave-ans'),
-      eqBFreqEq:    id('eq-b-freq-eq'),
-      eqBFreqSub:   id('eq-b-freq-sub'),
-      eqBFreqAns:   id('eq-b-freq-ans'),
-      eqBShiftSub:  id('eq-b-shift-sub'),
-      eqBShiftAns:  id('eq-b-shift-ans'),
+      liveAheadFreqEq:   id('live-ahead-freq-eq'),
+      liveAheadFreqSub:  id('live-ahead-freq-sub'),
+      liveAheadFreqAns:  id('live-ahead-freq-ans'),
+      liveAheadWaveEq:   id('live-ahead-wave-eq'),
+      liveAheadWaveSub:  id('live-ahead-wave-sub'),
+      liveAheadWaveAns:  id('live-ahead-wave-ans'),
+      liveAheadShiftSub: id('live-ahead-shift-sub'),
+      liveAheadShiftAns: id('live-ahead-shift-ans'),
+
+      liveBehindFreqEq:   id('live-behind-freq-eq'),
+      liveBehindFreqSub:  id('live-behind-freq-sub'),
+      liveBehindFreqAns:  id('live-behind-freq-ans'),
+      liveBehindWaveEq:   id('live-behind-wave-eq'),
+      liveBehindWaveSub:  id('live-behind-wave-sub'),
+      liveBehindWaveAns:  id('live-behind-wave-ans'),
+      liveBehindShiftSub: id('live-behind-shift-sub'),
+      liveBehindShiftAns: id('live-behind-shift-ans'),
 
       graphPanel:   id('graph-panel'),
 
@@ -1290,6 +1291,24 @@ const UIController = {
       });
     }
 
+    if (e.btnToggleEquations && e.equationsContent) {
+      e.btnToggleEquations.addEventListener('click', () => {
+        const expanded = e.equationsContent.style.display !== 'none';
+        e.equationsContent.style.display = expanded ? 'none' : 'block';
+        e.btnToggleEquations.textContent = expanded ? 'Show Equations' : 'Hide Equations';
+        e.btnToggleEquations.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+      });
+    }
+
+    if (e.btnToggleLiveCalc && e.liveCalcContent) {
+      e.btnToggleLiveCalc.addEventListener('click', () => {
+        const expanded = e.liveCalcContent.style.display !== 'none';
+        e.liveCalcContent.style.display = expanded ? 'none' : 'block';
+        e.btnToggleLiveCalc.textContent = expanded ? 'Show Live Calculations' : 'Hide Live Calculations';
+        e.btnToggleLiveCalc.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+      });
+    }
+
     if (e.fsBtnPlayPause) {
       e.fsBtnPlayPause.addEventListener('click', () => {
         if (state.running) {
@@ -1430,72 +1449,58 @@ const UIController = {
     if (e.wlBarSourceVal) e.wlBarSourceVal.textContent = lSrc.toFixed(3) + ' m';
     if (e.wlBarRearVal)   e.wlBarRearVal.textContent   = lRear.toFixed(3) + ' m';
 
-    // v_o = 0 (observers are stationary) — kept explicit in the displayed
-    // equation per the formula sheet's full f_o = f_s(v ± v_o) ÷ (v ∓ v_s)
-    const vo = 0;
-    const voSignA = resA.approaching ? '+' : '−';
-    const vsSignA = resA.approaching ? '−' : '+';
-    const voSignB = resB.approaching ? '+' : '−';
-    const vsSignB = resB.approaching ? '−' : '+';
+    // Live Calculations (collapsible) — direction-based worked solution.
+    // Reuses PhysicsClient.cache.freqAhead / freqBehind / lambdaFront / lambdaRear,
+    // the same cached backend outputs already used elsewhere (e.g. Wavelength
+    // Analysis panel, Data panel Mach reading) — no physics is recalculated here.
+    const fAheadVal  = cache.freqAhead;
+    const fBehindVal = cache.freqBehind;
+    const fAheadStr  = isFinite(fAheadVal) ? fAheadVal.toFixed(1) : '∞';
+    const fBehindStr = fBehindVal.toFixed(1);
 
-    const eqAStr = `f<sub>A</sub> = ${f} × (${V} ${voSignA} ${vo}) ÷ (${V} ${vsSignA} ${vs})`;
-    const eqBStr = `f<sub>B</sub> = ${f} × (${V} ${voSignB} ${vo}) ÷ (${V} ${vsSignB} ${vs})`;
+    const waveFrontStr = V - vs > 0 ? lFront.toFixed(4) : '—';
+    const waveRearStr  = lRear.toFixed(4);
 
-    e.eqLiveA.innerHTML = isFinite(fA)
-      ? `${eqAStr} = <strong>${fAstr} Hz</strong>`
-      : `${eqAStr} = <strong>∞ (sonic)</strong>`;
-    e.eqLiveB.innerHTML = isFinite(fB)
-      ? `${eqBStr} = <strong>${fBstr} Hz</strong>`
-      : `${eqBStr} = <strong>∞ (sonic)</strong>`;
+    const shiftAheadVal  = isFinite(fAheadVal) ? fAheadVal - f : Infinity;
+    const shiftBehindVal = fBehindVal - f;
 
-    // Full worked solution (wavelength, observed frequency, frequency shift)
-    // per observer — reuses fA/fB, wA/wB, shiftA/shiftB already computed
-    // above; no physics is recalculated here.
-    const buildWorked = (approaching, freqStr, waveStr, shiftVal) => {
-      const waveSym = approaching ? 'λ<sub>front</sub>' : 'λ<sub>rear</sub>';
-      const waveOp  = approaching ? '−' : '+';
-      const freqSym = approaching ? 'f<sub>ahead</sub>' : 'f<sub>behind</sub>';
-      const freqOp  = approaching ? '−' : '+';
+    const buildDirection = (op, sym, freqStr, waveStr, shiftVal) => {
+      const freqEq  = `${sym.freq} = f(v ÷ (v ${op} v<sub>s</sub>))`;
+      const freqSub = `${sym.freq} = ${f} × (${V} ÷ (${V} ${op} ${vs}))`;
+      const freqAns = freqStr === '∞' ? `${sym.freq} = ∞ (sonic)` : `${sym.freq} = ${freqStr} Hz`;
 
-      const waveEq  = `${waveSym} = (v ${waveOp} v<sub>s</sub>) ÷ f`;
-      const waveSub = `${waveSym} = (${V} ${waveOp} ${vs}) ÷ ${f}`;
-      const waveAns = waveStr === '—' ? `${waveSym} = —` : `${waveSym} = ${waveStr} m`;
+      const waveEq  = `${sym.wave} = (v ${op} v<sub>s</sub>) ÷ f`;
+      const waveSub = `${sym.wave} = (${V} ${op} ${vs}) ÷ ${f}`;
+      const waveAns = waveStr === '—' ? `${sym.wave} = —` : `${sym.wave} = ${waveStr} m`;
 
-      const freqEq  = `${freqSym} = f(v ÷ (v ${freqOp} v<sub>s</sub>))`;
-      const freqSub = `${freqSym} = ${f} × (${V} ÷ (${V} ${freqOp} ${vs}))`;
-      const freqAns = freqStr === '∞' ? `${freqSym} = ∞ (sonic)` : `${freqSym} = ${freqStr} Hz`;
-
-      const shiftSub = isFinite(shiftVal) ? `Δf = ${freqStr} − ${f}` : `Δf = ∞ − ${f}`;
+      const shiftSub = isFinite(shiftVal) ? `${sym.shift} = ${freqStr} − ${f}` : `${sym.shift} = ∞ − ${f}`;
       const shiftAns = isFinite(shiftVal)
-        ? `Δf = ${shiftVal >= 0 ? '+' : '−'}${Math.abs(shiftVal).toFixed(1)} Hz`
-        : `Δf = +∞ Hz`;
+        ? `${sym.shift} = ${shiftVal >= 0 ? '+' : '−'}${Math.abs(shiftVal).toFixed(1)} Hz`
+        : `${sym.shift} = +∞ Hz`;
 
-      return { waveEq, waveSub, waveAns, freqEq, freqSub, freqAns, shiftSub, shiftAns };
+      return { freqEq, freqSub, freqAns, waveEq, waveSub, waveAns, shiftSub, shiftAns };
     };
 
-    const workedA = buildWorked(resA.approaching, fAstr, wA, shiftA);
-    const workedB = buildWorked(resB.approaching, fBstr, wB, shiftB);
+    const ahead  = buildDirection('−', { freq: 'f<sub>ahead</sub>',  wave: 'λ<sub>front</sub>', shift: 'Δf<sub>ahead</sub>'  }, fAheadStr,  waveFrontStr, shiftAheadVal);
+    const behind = buildDirection('+', { freq: 'f<sub>behind</sub>', wave: 'λ<sub>rear</sub>',  shift: 'Δf<sub>behind</sub>' }, fBehindStr, waveRearStr,  shiftBehindVal);
 
-    if (e.eqObsTagA) e.eqObsTagA.textContent = resA.approaching ? 'APPROACHING' : 'RECEDING';
-    if (e.eqObsTagB) e.eqObsTagB.textContent = resB.approaching ? 'APPROACHING' : 'RECEDING';
+    if (e.liveAheadFreqEq)   e.liveAheadFreqEq.innerHTML   = ahead.freqEq;
+    if (e.liveAheadFreqSub)  e.liveAheadFreqSub.innerHTML  = ahead.freqSub;
+    if (e.liveAheadFreqAns)  e.liveAheadFreqAns.innerHTML  = ahead.freqAns;
+    if (e.liveAheadWaveEq)   e.liveAheadWaveEq.innerHTML   = ahead.waveEq;
+    if (e.liveAheadWaveSub)  e.liveAheadWaveSub.innerHTML  = ahead.waveSub;
+    if (e.liveAheadWaveAns)  e.liveAheadWaveAns.innerHTML  = ahead.waveAns;
+    if (e.liveAheadShiftSub) e.liveAheadShiftSub.innerHTML = ahead.shiftSub;
+    if (e.liveAheadShiftAns) e.liveAheadShiftAns.innerHTML = ahead.shiftAns;
 
-    if (e.eqAWaveEq)   e.eqAWaveEq.innerHTML   = workedA.waveEq;
-    if (e.eqAWaveSub)  e.eqAWaveSub.innerHTML  = workedA.waveSub;
-    if (e.eqAWaveAns)  e.eqAWaveAns.innerHTML  = workedA.waveAns;
-    if (e.eqAFreqEq)   e.eqAFreqEq.innerHTML   = workedA.freqEq;
-    if (e.eqAFreqSub)  e.eqAFreqSub.innerHTML  = workedA.freqSub;
-    if (e.eqAFreqAns)  e.eqAFreqAns.innerHTML  = workedA.freqAns;
-    if (e.eqAShiftSub) e.eqAShiftSub.innerHTML = workedA.shiftSub;
-    if (e.eqAShiftAns) e.eqAShiftAns.innerHTML = workedA.shiftAns;
-
-    if (e.eqBWaveEq)   e.eqBWaveEq.innerHTML   = workedB.waveEq;
-    if (e.eqBWaveSub)  e.eqBWaveSub.innerHTML  = workedB.waveSub;
-    if (e.eqBWaveAns)  e.eqBWaveAns.innerHTML  = workedB.waveAns;
-    if (e.eqBFreqEq)   e.eqBFreqEq.innerHTML   = workedB.freqEq;
-    if (e.eqBFreqSub)  e.eqBFreqSub.innerHTML  = workedB.freqSub;
-    if (e.eqBFreqAns)  e.eqBFreqAns.innerHTML  = workedB.freqAns;
-    if (e.eqBShiftSub) e.eqBShiftSub.innerHTML = workedB.shiftSub;
-    if (e.eqBShiftAns) e.eqBShiftAns.innerHTML = workedB.shiftAns;
+    if (e.liveBehindFreqEq)   e.liveBehindFreqEq.innerHTML   = behind.freqEq;
+    if (e.liveBehindFreqSub)  e.liveBehindFreqSub.innerHTML  = behind.freqSub;
+    if (e.liveBehindFreqAns)  e.liveBehindFreqAns.innerHTML  = behind.freqAns;
+    if (e.liveBehindWaveEq)   e.liveBehindWaveEq.innerHTML   = behind.waveEq;
+    if (e.liveBehindWaveSub)  e.liveBehindWaveSub.innerHTML  = behind.waveSub;
+    if (e.liveBehindWaveAns)  e.liveBehindWaveAns.innerHTML  = behind.waveAns;
+    if (e.liveBehindShiftSub) e.liveBehindShiftSub.innerHTML = behind.shiftSub;
+    if (e.liveBehindShiftAns) e.liveBehindShiftAns.innerHTML = behind.shiftAns;
 
     e.fpsDisplay.textContent = state.fps + ' FPS';
 
